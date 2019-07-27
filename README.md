@@ -1,4 +1,4 @@
-# laravel-make-view-command
+# laravel make view command
 Importing this artisan commmand to your laravel application allows you to generate your blade files through a single command
 
 # Usage

@@ -9,7 +9,7 @@ class MakeView extends Command
 {
 
     /**
-     * The name and signature of the console command.
+     * The name and signature of the console command
      *
      * @var string
      */

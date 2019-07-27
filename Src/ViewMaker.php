@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class ViewMaker
 {
     /**
-     * The path where views exists
+     * The path where views exists.
      */
     CONST VIEWS_PATH = "resources/views/";
 

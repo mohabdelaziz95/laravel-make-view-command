@@ -15,3 +15,9 @@ $ php artisan make:view dashboard.index
 ```sh
 $ php artisan make:view users --resource
 ```
+# Extend Layout
+```sh
+# Extend an existing layout
+$ php artisan make:view dashboard.index --extends=dashboard.layouts.master
+```
+

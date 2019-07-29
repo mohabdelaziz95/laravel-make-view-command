@@ -8,15 +8,6 @@ use Illuminate\Console\Command;
 
 class ViewMaker
 {
-    /**
-     * The path where views exists.
-     */
-    CONST VIEWS_PATH = "resources/views/";
-
-    /**
-     * The blade file extension
-     */
-    CONST BLADE_EXT = ".blade.php";
 
     /**
      * @var array
@@ -32,6 +23,16 @@ class ViewMaker
      * @var bool
      */
     protected $resource = false;
+
+    /**
+     * @var string
+     */
+    protected $extends;
+
+    /**
+     * @var string
+     */
+    protected $contents = "";
 
     /**
      * @var array
@@ -77,7 +78,7 @@ class ViewMaker
     protected function getViewNames (array $views)
     {
         return array_map(function ($view) {
-            return self::VIEWS_PATH . str_replace(".", '/', $view) . self::BLADE_EXT;
+            return Path::generate($view);
         }, $views);
     }
 
@@ -92,41 +93,74 @@ class ViewMaker
     }
 
     /**
-     * @param array $paths
-     * @return array
-     */
-    protected function normalizeDirectoriesPaths (array $paths)
-    {
-        return array_map(function ($path) {
-            return str_replace(strrchr($path, '/'), '', $path);
-        }, $paths);
-    }
-
-    /**
-     * @param array $views
-     */
-    protected function mkDir (array $views)
-    {
-        $paths = $this->normalizeDirectoriesPaths($views);
-        array_map(function ($path) {
-            if (! is_dir($path)) {
-                mkdir($path, 0777, true);
-            }
-        }, $paths);
-    }
-
-    /**
      * @param array $views
      */
     protected function makeViews (array $views)
     {
         foreach ($views as $view) {
             if (! File::exists($view)) {
-                file_put_contents($view, '');
+                if ($this->isExtends()) {
+                    $this->extend($this->getLayout());
+                }
+                if (! $this->hasErrors()) {
+                    file_put_contents($view, $this->getContents());
+                }
+
             } else {
                 $this->setErrors("This view already exists: " . $view);
             }
         }
+    }
+
+    /**
+     * @param string $layout
+     * @return $this
+     */
+    public function setExtends ($layout)
+    {
+        $this->extends = $layout;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isExtends ()
+    {
+        return ! is_null($this->extends);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLayout ()
+    {
+        return $this->extends;
+    }
+
+    /**
+     * @param string $layout
+     */
+    protected function extend ($layout)
+    {
+        $path = Path::generate($layout);
+        (file_exists($path)) ? $this->setContents("@extends(" . "'$layout'" . ")") : $this->setErrors("this layout does not exists: " . $path);
+    }
+
+    /**
+     * @param string $contents
+     */
+    protected function setContents ($contents)
+    {
+        $this->contents = $contents;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getContents ()
+    {
+        return $this->contents;
     }
 
     /**
@@ -169,7 +203,7 @@ class ViewMaker
     public function generate ()
     {
         $views = $this->getViewNames($this->getViews());
-        $this->mkDir($views);
+        Path::generateIntermediateDirectories($views[0]);
         $this->makeViews($views);
         return $this;
     }

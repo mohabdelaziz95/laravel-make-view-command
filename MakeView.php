@@ -9,11 +9,11 @@ class MakeView extends Command
 {
 
     /**
-     * The name and signature of the console command
+     * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:view {view} {--resource}';
+    protected $signature = 'make:view {view} {--resource} {--extends=}';
 
     /**
      * The console command description.
@@ -40,6 +40,7 @@ class MakeView extends Command
         (new ViewMaker())
             ->setViewName($this->argument("view"))
             ->setResource($this->option("resource"))
+            ->setExtends($this->option("extends"))
             ->generate()
             ->exit($this);
     }
